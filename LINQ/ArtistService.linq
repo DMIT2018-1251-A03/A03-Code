@@ -25,6 +25,23 @@ using BYSResults;
 void Main()
 {
 	CodeBehind codeBehind = new CodeBehind(this); // “this” is LINQPad’s auto Context
+	
+	#region Get Artist (GetArtist)
+	// fail
+	//		Rule:  artistID must be valid
+	codeBehind.GetArtist(0);
+	codeBehind.ErrorDetails.Dump("ArtistID must be valid");
+
+	// fail
+	// if not artist were found with the artist id provied
+	codeBehind.GetArtist(10000);
+	codeBehind.ErrorDetails.Dump("No ArtistID for 10000");
+	
+	// pass
+	codeBehind.GetArtist(1);
+	codeBehind.Artist.Dump("Pass - Valid ID");
+
+	#endregion
 
 }
 
@@ -54,6 +71,37 @@ public class CodeBehind(TypedDataContext context)
 	private string errorMessage = string.Empty;
 	#endregion
 
+	//	using default! so we do not get warning
+	//  artist view returned by the service using GetArtist().
+	public ArtistEditView Artist = default!;
+
+	//  GetArtist method
+	public void GetArtist(int artistID)
+	{
+		// clear previous error details and messages
+		errorDetails.Clear();
+		errorMessage = string.Empty;
+		feedbackMessage = String.Empty;
+
+		// wrap the service call in a try/catch to handle unexpected exceptions
+		try
+		{
+			var result = YourService.GetArtist(artistID);
+			if (result.IsSuccess)
+			{
+				Artist = result.Value;
+			}
+			else
+			{
+				errorDetails = GetErrorMessages(result.Errors.ToList());
+			}
+		}
+		catch (Exception ex)
+		{
+			// capture any exception message for display
+			errorMessage = ex.Message;
+		}
+	}
 }
 #endregion
 
@@ -104,7 +152,7 @@ public class Library
 						Name = a.Name
 					}).FirstOrDefault();
 
-		// if not artist were found with the artis id provied
+		// if not artist were found with the artist id provied
 		if (artist == null)
 		{
 			result.AddError(new Error("No Artist", $"No artist was found for with ID: {artistID}"));
