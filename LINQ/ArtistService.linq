@@ -40,7 +40,22 @@ void Main()
 	// pass
 	codeBehind.GetArtist(1);
 	codeBehind.Artist.Dump("Pass - Valid ID");
+	#endregion
 
+	#region Get Artists (GetArtists)
+	// fail
+	//		Rule:  name must be valid
+	codeBehind.GetArtists(string.Empty);
+	codeBehind.ErrorDetails.Dump("Artist name is required");
+
+	// fail
+	// if not artist were found with the artist name provied
+	codeBehind.GetArtists("ABC");
+	codeBehind.ErrorDetails.Dump("No Artists found for 'ABC'");
+
+	// pass
+	codeBehind.GetArtists("ABB");
+	codeBehind.Artists.Dump("Pass - Valid Name");
 	#endregion
 
 }
@@ -73,7 +88,10 @@ public class CodeBehind(TypedDataContext context)
 
 	//	using default! so we do not get warning
 	//  artist view returned by the service using GetArtist().
-	public ArtistEditView Artist = default!;
+	public ArtistEditView Artist = new();
+
+	//  artists list returned by the service using GetArtists().
+	public List<ArtistEditView> Artists = new();
 
 	//  GetArtist method
 	public void GetArtist(int artistID)
@@ -90,6 +108,34 @@ public class CodeBehind(TypedDataContext context)
 			if (result.IsSuccess)
 			{
 				Artist = result.Value;
+			}
+			else
+			{
+				errorDetails = GetErrorMessages(result.Errors.ToList());
+			}
+		}
+		catch (Exception ex)
+		{
+			// capture any exception message for display
+			errorMessage = ex.Message;
+		}
+	}
+
+	//  GetArtist method
+	public void GetArtists(string name)
+	{
+		// clear previous error details and messages
+		errorDetails.Clear();
+		errorMessage = string.Empty;
+		feedbackMessage = String.Empty;
+
+		// wrap the service call in a try/catch to handle unexpected exceptions
+		try
+		{
+			var result = YourService.GetArtists(name);
+			if (result.IsSuccess)
+			{
+				Artists = result.Value;
 			}
 			else
 			{
@@ -163,9 +209,51 @@ public class Library
 		//	return the result
 		return result.WithValue(artist);
 	}
+
+	public Result<List<ArtistEditView>> GetArtists(string name)
+	{
+		//  Create a Result continer that will hold eithe a 
+		//  ArtistEditView object or success or any accumlated errors on failure
+		var result = new Result<List<ArtistEditView>>();
+
+		#region Business Logic and Parameter Exceptions
+		//	Business Rules
+		// 	These are processing rules that need to be satisfied
+		//		for valid data
+		//		Rule:  artist name cannot be empty
+
+		if (string.IsNullOrWhiteSpace(name))
+		{
+			result.AddError(new Error("Missing Information", "Artist name is required"));
+			//	need to exit because we have nothing to search for
+			return result;
+		}
+		#endregion
+
+		//  artist that meet our criteria
+		var artists = _hogWildContext.Artists
+					.Where(a => a.Name.ToUpper().Contains(name.ToUpper()))
+					.Select(a => new ArtistEditView
+					{
+						ArtistID = a.ArtistId,
+						Name = a.Name
+					}).ToList();
+
+		// if no artist were found with the artist name provided
+		if (artists.Count() == 0)
+		{
+			result.AddError(new Error("No Artist", $"No artist was found for with name of: {name}"));
+			//	need to exit because we will not be able to add a null artist
+			//	to the result if there are any errors
+			return result;
+		}
+		//	return the result
+		return result.WithValue(artists);
+	}
 }
 
-#endregion
+
+	#endregion
 
 // ———— PART 4: View Models → Service Library View Model ————
 //	This region includes the view models used to 
