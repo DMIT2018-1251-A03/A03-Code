@@ -33,7 +33,7 @@ void Main()
 	codeBehind.ErrorDetails.Dump("ArtistID must be valid");
 
 	// fail
-	// if not artist were found with the artist id provied
+	// if not artist were found with the artist id provided
 	codeBehind.GetArtist(10000);
 	codeBehind.ErrorDetails.Dump("No ArtistID for 10000");
 	
