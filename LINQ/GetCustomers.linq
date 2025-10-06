@@ -55,11 +55,10 @@ void Main()
 	codeBehind.errorMessage.Dump();
 
 	//	pass: valid phone was provided
-	lastName = string.Empty;
+	lastName = "";
 	phone = "558";
 	codeBehind.GetCustomers(lastName, phone);
 	codeBehind.Customers.Dump($"Pass - Valid phone {lastName}");
-	codeBehind.errorMessage.Dump();
 	#endregion
 
 }
@@ -162,6 +161,17 @@ public class Library
 				"Please provide either a last name and/or phone number"));
 		}
 		#endregion
+		
+		//  update for either empty lastname or phone wiht GUID
+		if(string.IsNullOrWhiteSpace(lastName))
+		{
+			lastName = Guid.NewGuid().ToString();
+		}
+
+		if (string.IsNullOrWhiteSpace(phone))
+		{
+			phone = Guid.NewGuid().ToString();
+		}
 
 		//	filter rules
 		// 	1) only apply lastName filter if supplied
