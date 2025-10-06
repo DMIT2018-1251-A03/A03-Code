@@ -25,14 +25,41 @@ using BYSResults;
 void Main()
 {
 	CodeBehind codeBehind = new CodeBehind(this); // “this” is LINQPad’s auto Context
-	
+
 	#region Get Customers (GetCustomers)
 	string lastName = string.Empty;
 	string phone = string.Empty;
+
+	// 	rule:	Both last name and phone number cannot be empty
+	codeBehind.GetCustomers(lastName, phone);
+	codeBehind.ErrorDetails.Dump("Both last name and phone number cannot be empty");
 	
-		// 	rule:	Both last name and phone number cannot be empty
-		codeBehind.GetCustomers(lastName, phone);
-		codeBehind.ErrorDetails.Dump("Both last name and phone number cannot be empty");
+	//	rule:  both the last name and phone must be valid
+	lastName = "zzz";
+	phone = "999999";
+	codeBehind.GetCustomers(lastName, phone);
+	codeBehind.ErrorDetails.Dump($"No customer with last name {lastName} & phone number of {phone}");
+
+	//	pass: both the last name and phone number were provided
+	lastName = "s";
+	phone = "558";
+	codeBehind.GetCustomers(lastName, phone);
+	codeBehind.Customers.Dump($"Pass - Valid last name {lastName} & phone number {phone}");
+	codeBehind.errorMessage.Dump();
+
+	//	pass: valid last name was provided
+	lastName = "s";
+	phone = string.Empty;
+	codeBehind.GetCustomers(lastName, phone);
+	codeBehind.Customers.Dump($"Pass - Valid last name {lastName}");
+	codeBehind.errorMessage.Dump();
+
+	//	pass: valid phone was provided
+	lastName = string.Empty;
+	phone = "558";
+	codeBehind.GetCustomers(lastName, phone);
+	codeBehind.Customers.Dump($"Pass - Valid phone {lastName}");
+	codeBehind.errorMessage.Dump();
 	#endregion
 
 }
@@ -56,28 +83,28 @@ public class CodeBehind(TypedDataContext context)
 
 	#region Fields from Blazor Page Code-Behind
 	// feedback message to display to the user.
-	private string feedbackMessage = string.Empty;
+	public string feedbackMessage = string.Empty;
 	// collected error details.
-	private List<string> errorDetails = new();
+	public List<string> errorDetails = new();
 	// general error message.
-	private string errorMessage = string.Empty;
+	public string errorMessage = string.Empty;
 	#endregion
-	
+
 	//	in your UI, you may need to swap default! with new()
-	public List<CustomerSearchView> Customers {get; set;} = default!;
-	
+	public List<CustomerSearchView> Customers { get; set; } = default!;
+
 	public void GetCustomers(string lastName, string phone)
 	{
 		//	clear the previous error details and messages
 		errorDetails.Clear();
 		errorMessage = string.Empty;
 		feedbackMessage = string.Empty;
-		
+
 		//	wrap the service call in a try/catch to handle unexpected exceptions
 		try
 		{
 			var result = YourService.GetCustomers(lastName, phone);
-			if(result.IsSuccess)
+			if (result.IsSuccess)
 			{
 				Customers = result.Value;
 			}
@@ -85,9 +112,9 @@ public class CodeBehind(TypedDataContext context)
 			{
 				errorDetails = GetErrorMessages(result.Errors.ToList());
 			}
-			
+
 		}
-		catch(Exception ex)
+		catch (Exception ex)
 		{
 			//	capture any exception message for display
 			errorMessage = ex.Message;
@@ -157,13 +184,13 @@ public class Library
 								Phone = c.Phone,
 								Email = c.Email,
 								StatusID = c.StatusID,
-								TotalSales = c.Invoices.Sum(i => i.SubTotal + i.Tax)
+								TotalSales = (decimal?)c.Invoices.Sum(i => i.SubTotal + i.Tax) ?? 0
 							})
 						.OrderBy(c => c.LastName)
 							.ToList();
-							
+
 		//	if no customer were found with either the last name or phone number
-		if(customers == null || customers.Count() == 0)
+		if (customers == null || customers.Count() == 0)
 		{
 			//	need to exit because we did not find any customers
 			return result.AddError(new Error("No Customers", "No customers were found"));
@@ -196,7 +223,7 @@ public class CustomerSearchView
 	//  status ID.  Status value will use a dropdown and the Lookup View Model
 	public int StatusID { get; set; }
 	//  Invoice.SubTotal +  Invoice.Tax	
-	public decimal TotalSales { get; set; }
+	public decimal? TotalSales { get; set; }
 }
 #endregion
 
