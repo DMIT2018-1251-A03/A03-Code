@@ -26,6 +26,26 @@ void Main()
 {
 	CodeBehind codeBehind = new CodeBehind(this); // “this” is LINQPad’s auto Context
 
+	#region Get Customer (GetCustomer)
+	//	Fail
+	//	rule: customerID must be valid (greater than zero)
+	codeBehind.GetCustomer(0);
+	codeBehind.ErrorDetails.Dump("Customer ID must be greater than zero");
+
+	//	rule: customer ID must be valid (must exist in the table)
+	codeBehind.GetCustomer(100000);
+	codeBehind.ErrorDetails.Dump("Customer was not found for customer ID: 100000");
+
+	//	rule: RemoveFromViewFlag must be false (soft delete) - Works on James Database Only
+	codeBehind.GetCustomer(2);
+	codeBehind.ErrorDetails.Dump("Customer was not found for customer ID: 2 due to soft delete");
+
+	//	Pass: Valid customer ID
+	codeBehind.GetCustomer(1);
+	codeBehind.Customer.Dump("Pass - Valid customer ID");
+	#endregion
+
+
 }
 
 // ———— PART 2: Code Behind → Code Behind Method ————
@@ -54,6 +74,34 @@ public class CodeBehind(TypedDataContext context)
 	private string errorMessage = string.Empty;
 	#endregion
 
+	public CustomerEditView Customer = default!;
+
+	public void GetCustomer(int customerID)
+	{
+		//	clear previous error details and messages
+		errorDetails.Clear();
+		errorMessage = string.Empty;
+		feedbackMessage = string.Empty;
+
+		//	wrap the service call in a try/catch to handle unexpected exceptions
+		try
+		{
+			var result = YourService.GetCustomer(customerID);
+			if (result.IsSuccess)
+			{
+				Customer = result.Value;
+			}
+			else
+			{
+				errorDetails = GetErrorMessages(result.Errors.ToList());
+			}
+		}
+		catch (Exception ex)
+		{
+			//	capture any exception message for display
+			errorMessage = ex.Message;
+		}
+	}
 }
 #endregion
 
@@ -112,11 +160,75 @@ public class Library
 							StatusID = c.StatusID,
 							RemoveFromViewFlag = c.RemoveFromViewFlag
 						}).FirstOrDefault();
-						
-						
-						
+		//	if no customer was found with the customer ID
+		if (customer == null)
+		{
+			return result.AddError(new Error("No Customer",
+									$"No customer for ID {customerID} was found"));
+		}
+
+		//	return the result
+		return result.WithValue(customer);
 	}
 
+	public Result<CustomerEditView> AddEditCustomer(CustomerEditView editCustomer)
+	{
+		//	Create a Result that will hold either a 
+		//	 CustomerEditView object or success or any accumulated errors on failure
+		var result = new Result<CustomerEditView>();
+
+		#region Business Rules
+		//	These are processing rules that need to be satisfied for valid data
+		//	rule:  customer edit view model cannot be null
+		if (editCustomer == null)
+		{
+			return result.AddError(new Error("Missing Customer",
+								"No customer was supply"));
+		}
+
+		//	rule:	first & last name, phone number and email are required (not empty)
+		if (string.IsNullOrWhiteSpace(editCustomer.FirstName))
+		{
+			result.AddError(new Error("Missing Information", "First name is required"));
+		}
+
+		if (string.IsNullOrWhiteSpace(editCustomer.LastName))
+		{
+			result.AddError(new Error("Missing Information", "Last name is required"));
+		}
+
+		if (string.IsNullOrWhiteSpace(editCustomer.Phone))
+		{
+			result.AddError(new Error("Missing Information", "Phone number is required"));
+		}
+
+		if (string.IsNullOrWhiteSpace(editCustomer.Email))
+		{
+			result.AddError(new Error("Missing Information", "Email is required"));
+		}
+
+		//	rule:  first name, last name and phone number cannot be duplicated (found more than once)
+		if (editCustomer.CustomerID == 0)
+		{
+			bool customerExist = _hogWildContext.Customers.Any(c =>
+								c.FirstName.ToUpper() == editCustomer.FirstName.ToUpper() &&
+								c.LastName.ToUpper() == editCustomer.LastName.ToUpper() &&
+								c.Phone == editCustomer.Phone);
+
+			if (customerExist)
+			{
+				result.AddError(new Error("Existing Customer Data",
+							"Customer already exist in the database and cannot be enter again"));
+			}
+		}
+
+		//	exit if we have any outstanding errors
+		if (result.IsFailure)
+		{
+			return result;
+		}
+		#endregion
+	}
 }
 #endregion
 
