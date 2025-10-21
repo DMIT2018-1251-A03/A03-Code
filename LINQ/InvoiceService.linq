@@ -1,13 +1,13 @@
 <Query Kind="Program">
   <Connection>
-    <ID>37a64ce9-5c5f-4d4d-afc7-7324799c8fda</ID>
+    <ID>813ec320-8be0-4b91-8ec8-c1549d53aaea</ID>
     <NamingServiceVersion>2</NamingServiceVersion>
     <Persist>true</Persist>
     <Driver Assembly="(internal)" PublicKeyToken="no-strong-name">LINQPad.Drivers.EFCore.DynamicDriver</Driver>
     <AllowDateOnlyTimeOnly>true</AllowDateOnlyTimeOnly>
     <Server>.</Server>
     <Database>OLTP-DMIT2018</Database>
-    <DisplayName>OLTP-DMIT2018-ENtity</DisplayName>
+    <DisplayName>OLTP-DMIT2018-Entity</DisplayName>
     <DriverData>
       <EncryptSqlTraffic>True</EncryptSqlTraffic>
       <PreserveNumeric1>True</PreserveNumeric1>
@@ -28,48 +28,82 @@ using BYSResults;
 void Main()
 {
 	CodeBehind codeBehind = new CodeBehind(this); // “this” is LINQPad’s auto Context
-	
+
 	#region GetParts
-	//	create a place holder for existing parts
-	List<int> existingPartsIDs = new();
-	
-	//	Fail
-	//	Rule: CategoryID & descripotion must be provided
-	codeBehind.GetParts(0, string.Empty, existingPartsIDs);
-	codeBehind.ErrorDetails.Dump("Category ID & description must be provided");
-	
-	//	Rule: No parts found
-	codeBehind.GetParts(0, "zzz", existingPartsIDs);
-	codeBehind.ErrorDetails.Dump("No parts were found that contain description 'zzz'");
-	
-	//	Pass:	valid part category ID (23 -> "Parts")
-	codeBehind.GetParts(23, string.Empty, existingPartsIDs);
-	codeBehind.Parts.Dump("Pass - Valid parts category ID");
-	
-	//	Pass:	valid partial description ('ra');
-	codeBehind.GetParts(0, "ra", existingPartsIDs);
-	codeBehind.Parts.Dump("Pass - Valid partial description");
-	
-	//	Pass: Updated existing parts ids
-	existingPartsIDs.Add(27); //	Brake Oil, pint
-	existingPartsIDs.Add(33); //	Transmission fuild, quart
-	codeBehind.GetParts(0, "ra", existingPartsIDs);
-	codeBehind.Parts.Dump("Pass - Valid partial description with existing parts ids");
+	//	//	create a place holder for existing parts
+	//	List<int> existingPartsIDs = new();
+	//
+	//	//	Fail
+	//	//	Rule: CategoryID & descripotion must be provided
+	//	codeBehind.GetParts(0, string.Empty, existingPartsIDs);
+	//	codeBehind.ErrorDetails.Dump("Category ID & description must be provided");
+	//
+	//	//	Rule: No parts found
+	//	codeBehind.GetParts(0, "zzz", existingPartsIDs);
+	//	codeBehind.ErrorDetails.Dump("No parts were found that contain description 'zzz'");
+	//
+	//	//	Pass:	valid part category ID (23 -> "Parts")
+	//	codeBehind.GetParts(23, string.Empty, existingPartsIDs);
+	//	codeBehind.Parts.Dump("Pass - Valid parts category ID");
+	//
+	//	//	Pass:	valid partial description ('ra');
+	//	codeBehind.GetParts(0, "ra", existingPartsIDs);
+	//	codeBehind.Parts.Dump("Pass - Valid partial description");
+	//
+	//	//	Pass: Updated existing parts ids
+	//	existingPartsIDs.Add(27); //	Brake Oil, pint
+	//	existingPartsIDs.Add(33); //	Transmission fuild, quart
+	//	codeBehind.GetParts(0, "ra", existingPartsIDs);
+	//	codeBehind.Parts.Dump("Pass - Valid partial description with existing parts ids");
 	#endregion
 
 	#region GetPart
-		//	Fail
-		//	Rule:  part ID must be greater than zero
-		codeBehind.GetPart(0);
-		codeBehind.ErrorDetails.Dump("Part ID must be greater than zero");
-	
-		// Rule:  part ID must valid 
-		codeBehind.GetPart(1000000);
-		codeBehind.ErrorDetails.Dump("No part was found for ID 1000000");
-	
-		// Pass:  valid part ID
-		codeBehind.GetPart(52);
-		codeBehind.Part.Dump("Pass - Valid part ID");
+	//	//	Fail
+	//	//	Rule:  part ID must be greater than zero
+	//	codeBehind.GetPart(0);
+	//	codeBehind.ErrorDetails.Dump("Part ID must be greater than zero");
+	//
+	//	// Rule:  part ID must valid 
+	//	codeBehind.GetPart(1000000);
+	//	codeBehind.ErrorDetails.Dump("No part was found for ID 1000000");
+	//
+	//	// Pass:  valid part ID
+	//	codeBehind.GetPart(52);
+	//	codeBehind.Part.Dump("Pass - Valid part ID");
+	#endregion
+
+	#region GetInvoice
+	//	Fail:
+	//	Rule:	Customer and Invoice ID must be provided
+	codeBehind.GetInvoice(0, 0, 1);
+	codeBehind.ErrorDetails.Dump("Customer and InvoiceID must be greater than zero");
+
+	//	Rule:	Employee ID must be provided
+	codeBehind.GetInvoice(0, 1, 0);
+	codeBehind.ErrorDetails.Dump("EmployeeID must be greater than zero");
+
+	//	Pass:	New Invoice
+	codeBehind.GetInvoice(0, 1, 1);
+	codeBehind.Invoice.Dump("Pass - New Invoice");
+
+	//	Pass:	Existing Invoice
+	codeBehind.GetInvoice(1, 1, 1);
+	codeBehind.Invoice.Dump("Pass - Existing Invoice");
+	#endregion
+
+	#region GetCustomerInvoice
+	//	Fail
+	//	Rule:  customer ID must be greater than zero
+	codeBehind.GetCustomerInvoices(0);
+	codeBehind.ErrorDetails.Dump("Customer ID must be greater than zero");
+
+	// Rule:  customer ID must valid 
+	codeBehind.GetCustomerInvoices(1000000);
+	codeBehind.ErrorDetails.Dump("No customer was found for ID 1000000");
+
+	// Pass:  valid customer ID
+	codeBehind.GetCustomerInvoices(1);
+	codeBehind.CustomerInvoices.Dump("Pass - Valid customer ID");
 	#endregion
 
 }
@@ -106,6 +140,13 @@ public class CodeBehind(TypedDataContext context)
 
 	//	using GetPart
 	public PartView Part = default!;
+
+	//	invoice view returned by the service
+	//	using both the GetInvoice() & AddEditInvoice()
+	public InvoiceView Invoice = default!;
+	
+	//	using GetCustomerInvoices
+	public List<InvoiceView> CustomerInvoices = new();
 
 	public void GetParts(int partCategoryID, string description, List<int> existingPartIDs)
 	{
@@ -160,10 +201,67 @@ public class CodeBehind(TypedDataContext context)
 			errorMessage = ex.Message;
 		}
 	}
-}
-	#endregion
 
-	// ———— PART 3: Database Interaction Method → Service Library Method ————
+	public void GetInvoice(int invoiceID, int customerID, int employeeID)
+	{
+		// clear previous error details and messages
+		errorDetails.Clear();
+		errorMessage = string.Empty;
+		feedbackMessage = String.Empty;
+
+		// wrap the service call in a try/catch to handle unexpected exceptions
+		try
+		{
+			var result = YourService.GetInvoice(invoiceID, customerID, employeeID);
+			if (result.IsSuccess)
+			{
+				Invoice = result.Value;
+			}
+			else
+			{
+				errorDetails = GetErrorMessages(result.Errors.ToList());
+			}
+		}
+		catch (Exception ex)
+		{
+			// capture any exception message for display
+			errorMessage = ex.Message;
+		}
+	}
+
+	public void GetCustomerInvoices(int customerID)
+	{
+		// clear previous error details and messages
+		errorDetails.Clear();
+		errorMessage = string.Empty;
+		feedbackMessage = String.Empty;
+
+		// wrap the service call in a try/catch to handle unexpected exceptions
+		try
+		{
+			var result = YourService.GetCustomerInvoices(customerID);
+			if (result.IsSuccess)
+			{
+				CustomerInvoices = result.Value;
+			}
+			else
+			{
+				errorDetails = GetErrorMessages(result.Errors.ToList());
+			}
+		}
+		catch (Exception ex)
+		{
+			// capture any exception message for display
+			errorMessage = ex.Message;
+		}
+	}
+
+
+
+}
+#endregion
+
+// ———— PART 3: Database Interaction Method → Service Library Method ————
 //	This region contains support methods for testing
 #region Methods
 public class Library
@@ -203,11 +301,11 @@ public class Library
 								"Please provide either a category and/or description"));
 		}
 		#endregion
-		
+
 		//	need to update description parametrs so we are not searching on
 		//	 an empty string value.  Otherwise, this would return all records
 		Guid tempGuid = Guid.NewGuid();
-		if(string.IsNullOrWhiteSpace(description))
+		if (string.IsNullOrWhiteSpace(description))
 		{
 			description = tempGuid.ToString();
 		}
@@ -240,15 +338,15 @@ public class Library
 					.OrderBy(p => p.Description)
 					.ToList();
 
-	//  if no parts were found
-	if(parts ==null || parts.Count() == 0)
-	{
-		//need to exit because we did not find any parts
-		return result.AddError(new Error("No Parts", "No parts were found"));
-	}
-	
-	//	return the result
-	return result.WithValue(parts);
+		//  if no parts were found
+		if (parts == null || parts.Count() == 0)
+		{
+			//need to exit because we did not find any parts
+			return result.AddError(new Error("No Parts", "No parts were found"));
+		}
+
+		//	return the result
+		return result.WithValue(parts);
 	}
 
 	//	Get the part
@@ -297,6 +395,151 @@ public class Library
 		//  return the result
 		return result.WithValue(part);
 	}
+
+	public Result<InvoiceView> GetInvoice(int invoiceID, int customerID, int employeeID)
+	{
+		//	Create a Result container that will hold either a
+		//	  InvoiceView object on success or any accumulated errors on failure
+		var result = new Result<InvoiceView>();
+
+		#region Business Rules
+		//	These are processing rules that need to be satisfied
+		//		for valid data
+		//		rule:  cusomerID must be provided if invoiceID == 0
+		//		Rule:  employeeID must be provided
+		if (customerID == 0 && invoiceID == 0)
+		{
+			result.AddError(new Error("Missing Information", "Please provide a customer ID"));
+		}
+
+		if (employeeID == 0)
+		{
+			result.AddError(new Error("Missing Information", "Please provide a employee ID"));
+		}
+
+		// need to exit because we are missing key data
+		if (result.IsFailure)
+		{
+			return result;
+		}
+		#endregion
+		//	Handles both new and existing invoice
+		//	For a new invoice, the following information is needed
+		//		Customer & Employee IDs
+		//	For a existing invoice, the following information is needed
+		//	Invoice & employeeID (We maybe updating an invoice at a later date
+		//		and we need the current employee who is handling the transaction
+
+		InvoiceView invoice = null;
+		//	new invoice for a customer
+		if (invoiceID == 0)
+		{
+			invoice = new InvoiceView()
+			{
+				CustomerID = customerID,
+				EmployeeID = employeeID,
+				InvoiceDate = DateOnly.FromDateTime(DateTime.Now)
+			};
+		}
+		else
+		{
+			invoice = _hogWildContext.Invoices
+						.Where(x => x.InvoiceID == invoiceID
+									&& !x.RemoveFromViewFlag)
+						.Select(x => new InvoiceView
+						{
+							InvoiceID = x.InvoiceID,
+							InvoiceDate = x.InvoiceDate,
+							CustomerID = x.CustomerID,
+							EmployeeID = x.EmployeeID,
+							SubTotal = x.SubTotal,
+							Tax = x.Tax,
+							RemoveFromViewFlag = x.RemoveFromViewFlag, //  this will always be false
+							InvoiceLines = x.InvoiceLines
+											.Select(il => new InvoiceLineView
+											{
+												InvoiceLineID = il.InvoiceLineID,
+												InvoiceID = il.InvoiceID,
+												PartID = il.PartID,
+												Quantity = il.Quantity,
+												Description = il.Part.Description,
+												Price = il.Part.Price,
+												Taxable = (bool)il.Part.Taxable,
+												RemoveFromViewFlag = il.RemoveFromViewFlag
+											}).ToList()
+						}).FirstOrDefault();
+			customerID = invoice.CustomerID;
+		}
+		invoice.CustomerName = GetCustomerFullName(customerID);
+		invoice.EmployeeName = GetEmployeeFullName(employeeID);
+
+		//	only happen if the invoice was mark as remove
+		if (invoice == null)
+		{
+			//	need to exit because we did not find any invoice
+			return result.AddError(new Error("No Invoice", "No invoice was found"));
+		}
+		return result.WithValue(invoice);
+
+	}
+
+	//	Get the customer invoices
+	public Result<List<InvoiceView>> GetCustomerInvoices(int customerId)
+	{
+		// Create a Result container that will hold either a
+		//	PartView objects on success or any accumulated errors on failure
+		var result = new Result<List<InvoiceView>>();
+		#region Business Rules
+		//	These are processing rules that need to be satisfied
+		//		rule:	customerID must be valid
+		//		rule: 	RemoveFromViewFlag must be false
+		if (customerId == 0)
+		{
+			result.AddError(new Error("Missing Information",
+							"Please provide a valid customer id"));
+			//  need to exit because we have no customer information
+			return result;
+		}
+		#endregion
+
+		var customerInvoices = _hogWildContext.Invoices
+				.Where(x => x.CustomerID == customerId
+							&& !x.RemoveFromViewFlag)
+				.Select(x => new InvoiceView
+				{
+					InvoiceID = x.InvoiceID,
+					InvoiceDate = x.InvoiceDate,
+					CustomerID = x.CustomerID,
+					SubTotal = x.SubTotal,
+					Tax = x.Tax
+				}).ToList();
+
+		//  if no invoices were found
+		if (customerInvoices == null || customerInvoices.Count() == 0)
+		{
+			result.AddError(new Error("No customer invoices", "No invoices were found"));
+			//  need to exit because we did not find any invoices
+			return result;
+		}
+		//  return the result
+		return result.WithValue(customerInvoices);
+	}
+
+	//	get the customer full name
+	public string GetCustomerFullName(int customerID)
+	{
+		return _hogWildContext.Customers
+					.Where(c => c.CustomerID == customerID)
+					.Select(c => $"{c.FirstName} {c.LastName}").FirstOrDefault() ?? string.Empty;
+	}
+
+	//	get the employee full name
+	public string GetEmployeeFullName(int employeeID)
+	{
+		return _hogWildContext.Employees
+					.Where(e => e.EmployeeID == employeeID)
+					.Select(e => $"{e.FirstName} {e.LastName}").FirstOrDefault() ?? string.Empty;
+	}
 }
 #endregion
 
@@ -317,6 +560,49 @@ public class PartView
 	public bool Taxable { get; set; }
 	public bool RemoveFromViewFlag { get; set; }
 }
+
+public class InvoiceView
+{
+	public int InvoiceID { get; set; }
+	public DateOnly InvoiceDate { get; set; }
+	public int CustomerID { get; set; }
+	public string CustomerName { get; set; }
+	public int EmployeeID { get; set; }
+	public string EmployeeName { get; set; }
+	public decimal SubTotal { get; set; }
+	public decimal Tax { get; set; }
+	public decimal Total => SubTotal + Tax;
+	public List<InvoiceLineView> InvoiceLines { get; set; } = new List<InvoiceLineView>();
+	public bool RemoveFromViewFlag { get; set; }
+}
+
+public class InvoiceLineView
+{
+	public int InvoiceLineID { get; set; }
+	public int InvoiceID { get; set; }
+	public int PartID { get; set; }
+	public string Description { get; set; }
+	public int Quantity { get; set; }
+	public decimal Price { get; set; }
+	public bool Taxable { get; set; }
+	public decimal ExtentPrice => Price * Quantity;
+	public bool RemoveFromViewFlag { get; set; }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #endregion
 
 //	This region includes support methods
