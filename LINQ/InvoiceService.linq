@@ -106,6 +106,81 @@ void Main()
 	codeBehind.CustomerInvoices.Dump("Pass - Valid customer ID");
 	#endregion
 
+	#region Add New Invoice
+	// Fail
+	// invoice cannot be null
+	codeBehind.AddEditInvoice(null);
+	codeBehind.ErrorDetails.Dump("Invoice cannot is null");
+
+	// setup Add Invoice
+	InvoiceView invoiceView = new InvoiceView();
+
+	// rule: customer id must be supply
+	// rule: employee id must be supply    
+	// rule: there must be invoice lines provided
+	codeBehind.AddEditInvoice(invoiceView);
+	codeBehind.ErrorDetails.Dump("Fail - All rules except rules involving invoice lines");
+
+	//  update missing fields
+	invoiceView.CustomerID = 1;
+	invoiceView.EmployeeID = 1;
+
+	// rule: missing part
+	InvoiceLineView invoiceLineView = new();
+	invoiceView.InvoiceLines.Add(invoiceLineView);
+	codeBehind.AddEditInvoice(invoiceView);
+	codeBehind.ErrorDetails.Dump("Fail - Missing part");
+
+	// rule: price is less than zero
+	// rule: quantity is less than one
+	invoiceView.InvoiceLines[0].PartID = 1;
+	invoiceView.InvoiceLines[0].Price = -1;
+	invoiceView.InvoiceLines[0].Quantity = 0;
+
+	codeBehind.AddEditInvoice(invoiceView);
+	codeBehind.ErrorDetails.Dump("Fail - Part price and quantity");
+
+	// reset invoice line to correct value
+	invoiceView.InvoiceLines[0].Price = 15;
+	invoiceView.InvoiceLines[0].Quantity = 10;
+
+	// rule: duplicated parts	
+	invoiceLineView = new();
+	invoiceLineView.PartID = 1;
+	invoiceLineView.Price = 10;
+	invoiceLineView.Quantity = 4;
+	invoiceView.InvoiceLines.Add(invoiceLineView);
+	codeBehind.AddEditInvoice(invoiceView);
+	codeBehind.ErrorDetails.Dump("Fail - Duplicated parts");
+
+	// Pass:  valid new invoice
+	// update duplicate part to unique part id
+	invoiceView.InvoiceLines[1].PartID = 2;
+	codeBehind.AddEditInvoice(invoiceView);
+	codeBehind.Invoice.Dump("Pass - New invoice");
+
+	// Pass:  edit invoice
+	// get last invoice ID
+	int invoiceID = Invoices.OrderByDescending(i => i.InvoiceID)
+					.Select(i => i.InvoiceID).FirstOrDefault();
+	//  get the last invoice
+	codeBehind.GetInvoice(invoiceID, 0, 1);
+	invoiceView = codeBehind.Invoice;
+	invoiceView.CustomerID = 4; // update customer 
+	invoiceView.EmployeeID = 3; // update employee
+								// update first invoice line quantity
+	invoiceView.InvoiceLines[0].Quantity = 22;
+	//add a new invoice line
+	invoiceLineView = new();
+	invoiceLineView.PartID = 3;
+	invoiceLineView.Price = 88;
+	invoiceLineView.Quantity = 121;
+	invoiceView.InvoiceLines.Add(invoiceLineView);
+	codeBehind.AddEditInvoice(invoiceView);
+	codeBehind.Invoice.Dump("Pass - Updated invoice");
+
+	#endregion
+
 }
 
 // ———— PART 2: Code Behind → Code Behind Method ————
@@ -256,7 +331,32 @@ public class CodeBehind(TypedDataContext context)
 		}
 	}
 
+	public void AddEditInvoice(InvoiceView invoiceView)
+	{
+		// clear previous error details and messages
+		errorDetails.Clear();
+		errorMessage = string.Empty;
+		feedbackMessage = String.Empty;
 
+		// wrap the service call in a try/catch to handle unexpected exceptions
+		try
+		{
+			var result = YourService.AddEditInvoice(invoiceView);
+			if (result.IsSuccess)
+			{
+				Invoice = result.Value;
+			}
+			else
+			{
+				errorDetails = GetErrorMessages(result.Errors.ToList());
+			}
+		}
+		catch (Exception ex)
+		{
+			// capture any exception message for display
+			errorMessage = ex.Message;
+		}
+	}
 
 }
 #endregion
