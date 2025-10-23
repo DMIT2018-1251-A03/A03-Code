@@ -1,13 +1,13 @@
 <Query Kind="Program">
   <Connection>
-    <ID>813ec320-8be0-4b91-8ec8-c1549d53aaea</ID>
+    <ID>37a64ce9-5c5f-4d4d-afc7-7324799c8fda</ID>
     <NamingServiceVersion>2</NamingServiceVersion>
     <Persist>true</Persist>
     <Driver Assembly="(internal)" PublicKeyToken="no-strong-name">LINQPad.Drivers.EFCore.DynamicDriver</Driver>
     <AllowDateOnlyTimeOnly>true</AllowDateOnlyTimeOnly>
     <Server>.</Server>
     <Database>OLTP-DMIT2018</Database>
-    <DisplayName>OLTP-DMIT2018-Entity</DisplayName>
+    <DisplayName>OLTP-DMIT2018-ENtity</DisplayName>
     <DriverData>
       <EncryptSqlTraffic>True</EncryptSqlTraffic>
       <PreserveNumeric1>True</PreserveNumeric1>
@@ -144,7 +144,7 @@ public class CodeBehind(TypedDataContext context)
 	//	invoice view returned by the service
 	//	using both the GetInvoice() & AddEditInvoice()
 	public InvoiceView Invoice = default!;
-	
+
 	//	using GetCustomerInvoices
 	public List<InvoiceView> CustomerInvoices = new();
 
@@ -524,6 +524,127 @@ public class Library
 		//  return the result
 		return result.WithValue(customerInvoices);
 	}
+
+	//	add edit invoice
+	public Result<InvoiceView> AddEditInvoice(InvoiceView invoiceView)
+	{
+		//	Create a result container that will hold either a 
+		//		invoice view object on sucess or any accumulated errors on failure
+		var result = new Result<InvoiceView>();
+
+		#region Business Rule
+		//	These are processing rules that need to be satisfied
+		//		for valid data
+		//	Rule:	invoice view cannot be null
+		if (invoiceView == null)
+		{
+			//	need to exit because we have no invoice object
+			return result.AddError(new Error("Missing Invoice", "No invoice was supply"));
+		}
+
+		//	rule:	CustomerID must be supply
+		if (invoiceView.CustomerID == 0 && invoiceView.InvoiceID == 0)
+		{
+			return result.AddError(new Error("Missing Information", "Please provide a valid customer ID"));
+		}
+
+		//	rule:	EmployeeID must be supply
+		if (invoiceView.EmployeeID == 0)
+		{
+			return result.AddError(new Error("Missing Information", "Please provide a valid employee ID"));
+		}
+
+		//	rule:	there must be invoice lines provides
+		//			Make sure that your InvoiceLines have been initialize (xxx = new List<InvoiceLine>();
+		if (invoiceView.InvoiceLines.Count() == 0)
+		{
+			return result.AddError(new Error("Missing Information", "Invoice details are required"));
+		}
+
+		//	rule:	foreac each invoice line, there must be a part ID
+		//	rule:	foreac each invoice line, price cannot be less than zero
+		//	rule:	foreac each invoice line, quantity cannot be less than 1
+		foreach (var invoiceLIne in invoiceView.InvoiceLines)
+		{
+			if (invoiceLIne.PartID == 0)
+			{
+				//	need to exit because we have no part information to process
+				return result.AddError(new Error("Missing Information", "Missing part ID"));
+			}
+			if (invoiceLIne.Price < 0)
+			{
+				string partName = _hogWildContext.Parts
+									.Where(p => p.PartID == invoiceLIne.PartID)
+									.Select(p => p.Description).FirstOrDefault();
+				result.AddError(new Error("Invalid Price", $"Part {partName} has a price less than zero"));
+			}
+			if (invoiceLIne.Quantity < 1)
+			{
+				string partName = _hogWildContext.Parts
+									.Where(p => p.PartID == invoiceLIne.PartID)
+									.Select(p => p.Description).FirstOrDefault();
+				result.AddError(new Error("Invalid Quanity", $"Part {partName} has a quantity less than one"));
+			}
+
+			// rule:    parts cannot be duplicated on more than one line.
+			List<string> duplicatedParts = invoiceView.InvoiceLines
+											.GroupBy(x => new { x.PartID })
+											.Where(gb => gb.Count() > 1)
+											.OrderBy(gb => gb.Key.PartID)
+											.Select(gb => _hogWildContext.Parts
+															.Where(p => p.PartID == gb.Key.PartID)
+															.Select(p => p.Description)
+															.FirstOrDefault()
+											).ToList();
+			if (duplicatedParts.Count > 0)
+			{
+				foreach (var partName in duplicatedParts)
+				{
+					result.AddError(new Error("Duplicate Invoice Line Items",
+							$"Part {partName} can only be added to the invoice lines once."));
+				}
+			}
+		}
+
+		//	exit if we have any outstanding errors
+		if (result.IsFailure)
+		{
+			return result;
+		}
+		#endregion
+		
+		//	retrieve the invoice from the database or create a new record/entity if it does not exist
+		Invoice invoice = _hogWildContext.Invoices
+							.Where(i => i.InvoiceID == invoiceView.InvoiceID
+											&& !i.RemoveFromViewFlag
+							).Select(i => i).FirstOrDefault();
+							
+		//	if the invoice doesn't exist, initizlize it
+		if(invoice == null)
+		{
+			invoice = new Invoice();
+			//	set the current date for the new invoice
+			invoice.InvoiceDate = DateOnly.FromDateTime(DateTime.Now);
+			invoice.CustomerID = invoiceView.CustomerID;
+		}
+		//	update invoice properties (fields) from the view model
+		invoice.EmployeeID = invoiceView.EmployeeID;
+		
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	//	get the customer full name
 	public string GetCustomerFullName(int customerID)
