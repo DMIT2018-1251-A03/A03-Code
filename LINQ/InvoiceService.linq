@@ -29,82 +29,82 @@ void Main()
 {
 	CodeBehind codeBehind = new CodeBehind(this); // “this” is LINQPad’s auto Context
 
-	#region GetParts
-	//	//	create a place holder for existing parts
-	//	List<int> existingPartsIDs = new();
-	//
-	//	//	Fail
-	//	//	Rule: CategoryID & descripotion must be provided
-	//	codeBehind.GetParts(0, string.Empty, existingPartsIDs);
-	//	codeBehind.ErrorDetails.Dump("Category ID & description must be provided");
-	//
-	//	//	Rule: No parts found
-	//	codeBehind.GetParts(0, "zzz", existingPartsIDs);
-	//	codeBehind.ErrorDetails.Dump("No parts were found that contain description 'zzz'");
-	//
-	//	//	Pass:	valid part category ID (23 -> "Parts")
-	//	codeBehind.GetParts(23, string.Empty, existingPartsIDs);
-	//	codeBehind.Parts.Dump("Pass - Valid parts category ID");
-	//
-	//	//	Pass:	valid partial description ('ra');
-	//	codeBehind.GetParts(0, "ra", existingPartsIDs);
-	//	codeBehind.Parts.Dump("Pass - Valid partial description");
-	//
-	//	//	Pass: Updated existing parts ids
-	//	existingPartsIDs.Add(27); //	Brake Oil, pint
-	//	existingPartsIDs.Add(33); //	Transmission fuild, quart
-	//	codeBehind.GetParts(0, "ra", existingPartsIDs);
-	//	codeBehind.Parts.Dump("Pass - Valid partial description with existing parts ids");
-	#endregion
-
-	#region GetPart
-	//	//	Fail
-	//	//	Rule:  part ID must be greater than zero
-	//	codeBehind.GetPart(0);
-	//	codeBehind.ErrorDetails.Dump("Part ID must be greater than zero");
-	//
-	//	// Rule:  part ID must valid 
-	//	codeBehind.GetPart(1000000);
-	//	codeBehind.ErrorDetails.Dump("No part was found for ID 1000000");
-	//
-	//	// Pass:  valid part ID
-	//	codeBehind.GetPart(52);
-	//	codeBehind.Part.Dump("Pass - Valid part ID");
-	#endregion
-
-	#region GetInvoice
-	//	Fail:
-	//	Rule:	Customer and Invoice ID must be provided
-	codeBehind.GetInvoice(0, 0, 1);
-	codeBehind.ErrorDetails.Dump("Customer and InvoiceID must be greater than zero");
-
-	//	Rule:	Employee ID must be provided
-	codeBehind.GetInvoice(0, 1, 0);
-	codeBehind.ErrorDetails.Dump("EmployeeID must be greater than zero");
-
-	//	Pass:	New Invoice
-	codeBehind.GetInvoice(0, 1, 1);
-	codeBehind.Invoice.Dump("Pass - New Invoice");
-
-	//	Pass:	Existing Invoice
-	codeBehind.GetInvoice(1, 1, 1);
-	codeBehind.Invoice.Dump("Pass - Existing Invoice");
-	#endregion
-
-	#region GetCustomerInvoice
-	//	Fail
-	//	Rule:  customer ID must be greater than zero
-	codeBehind.GetCustomerInvoices(0);
-	codeBehind.ErrorDetails.Dump("Customer ID must be greater than zero");
-
-	// Rule:  customer ID must valid 
-	codeBehind.GetCustomerInvoices(1000000);
-	codeBehind.ErrorDetails.Dump("No customer was found for ID 1000000");
-
-	// Pass:  valid customer ID
-	codeBehind.GetCustomerInvoices(1);
-	codeBehind.CustomerInvoices.Dump("Pass - Valid customer ID");
-	#endregion
+//	#region GetParts
+//	//	//	create a place holder for existing parts
+//	//	List<int> existingPartsIDs = new();
+//	//
+//	//	//	Fail
+//	//	//	Rule: CategoryID & descripotion must be provided
+//	//	codeBehind.GetParts(0, string.Empty, existingPartsIDs);
+//	//	codeBehind.ErrorDetails.Dump("Category ID & description must be provided");
+//	//
+//	//	//	Rule: No parts found
+//	//	codeBehind.GetParts(0, "zzz", existingPartsIDs);
+//	//	codeBehind.ErrorDetails.Dump("No parts were found that contain description 'zzz'");
+//	//
+//	//	//	Pass:	valid part category ID (23 -> "Parts")
+//	//	codeBehind.GetParts(23, string.Empty, existingPartsIDs);
+//	//	codeBehind.Parts.Dump("Pass - Valid parts category ID");
+//	//
+//	//	//	Pass:	valid partial description ('ra');
+//	//	codeBehind.GetParts(0, "ra", existingPartsIDs);
+//	//	codeBehind.Parts.Dump("Pass - Valid partial description");
+//	//
+//	//	//	Pass: Updated existing parts ids
+//	//	existingPartsIDs.Add(27); //	Brake Oil, pint
+//	//	existingPartsIDs.Add(33); //	Transmission fuild, quart
+//	//	codeBehind.GetParts(0, "ra", existingPartsIDs);
+//	//	codeBehind.Parts.Dump("Pass - Valid partial description with existing parts ids");
+//	#endregion
+//
+//	#region GetPart
+//	//	//	Fail
+//	//	//	Rule:  part ID must be greater than zero
+//	//	codeBehind.GetPart(0);
+//	//	codeBehind.ErrorDetails.Dump("Part ID must be greater than zero");
+//	//
+//	//	// Rule:  part ID must valid 
+//	//	codeBehind.GetPart(1000000);
+//	//	codeBehind.ErrorDetails.Dump("No part was found for ID 1000000");
+//	//
+//	//	// Pass:  valid part ID
+//	//	codeBehind.GetPart(52);
+//	//	codeBehind.Part.Dump("Pass - Valid part ID");
+//	#endregion
+//
+//	#region GetInvoice
+//	//	Fail:
+//	//	Rule:	Customer and Invoice ID must be provided
+//	codeBehind.GetInvoice(0, 0, 1);
+//	codeBehind.ErrorDetails.Dump("Customer and InvoiceID must be greater than zero");
+//
+//	//	Rule:	Employee ID must be provided
+//	codeBehind.GetInvoice(0, 1, 0);
+//	codeBehind.ErrorDetails.Dump("EmployeeID must be greater than zero");
+//
+//	//	Pass:	New Invoice
+//	codeBehind.GetInvoice(0, 1, 1);
+//	codeBehind.Invoice.Dump("Pass - New Invoice");
+//
+//	//	Pass:	Existing Invoice
+//	codeBehind.GetInvoice(1, 1, 1);
+//	codeBehind.Invoice.Dump("Pass - Existing Invoice");
+//	#endregion
+//
+//	#region GetCustomerInvoice
+//	//	Fail
+//	//	Rule:  customer ID must be greater than zero
+//	codeBehind.GetCustomerInvoices(0);
+//	codeBehind.ErrorDetails.Dump("Customer ID must be greater than zero");
+//
+//	// Rule:  customer ID must valid 
+//	codeBehind.GetCustomerInvoices(1000000);
+//	codeBehind.ErrorDetails.Dump("No customer was found for ID 1000000");
+//
+//	// Pass:  valid customer ID
+//	codeBehind.GetCustomerInvoices(1);
+//	codeBehind.CustomerInvoices.Dump("Pass - Valid customer ID");
+//	#endregion
 
 	#region Add New Invoice
 	// Fail
@@ -645,20 +645,20 @@ public class Library
 		//	rule:	CustomerID must be supply
 		if (invoiceView.CustomerID == 0 && invoiceView.InvoiceID == 0)
 		{
-			return result.AddError(new Error("Missing Information", "Please provide a valid customer ID"));
+			result.AddError(new Error("Missing Information", "Please provide a valid customer ID"));
 		}
 
 		//	rule:	EmployeeID must be supply
 		if (invoiceView.EmployeeID == 0)
 		{
-			return result.AddError(new Error("Missing Information", "Please provide a valid employee ID"));
+			result.AddError(new Error("Missing Information", "Please provide a valid employee ID"));
 		}
 
 		//	rule:	there must be invoice lines provides
 		//			Make sure that your InvoiceLines have been initialize (xxx = new List<InvoiceLine>();
 		if (invoiceView.InvoiceLines.Count() == 0)
 		{
-			return result.AddError(new Error("Missing Information", "Invoice details are required"));
+			result.AddError(new Error("Missing Information", "Invoice details are required"));
 		}
 
 		//	rule:	foreac each invoice line, there must be a part ID
