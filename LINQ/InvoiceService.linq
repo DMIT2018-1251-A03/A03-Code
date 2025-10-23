@@ -612,15 +612,15 @@ public class Library
 			return result;
 		}
 		#endregion
-		
+
 		//	retrieve the invoice from the database or create a new record/entity if it does not exist
 		Invoice invoice = _hogWildContext.Invoices
 							.Where(i => i.InvoiceID == invoiceView.InvoiceID
 											&& !i.RemoveFromViewFlag
 							).Select(i => i).FirstOrDefault();
-							
+
 		//	if the invoice doesn't exist, initizlize it
-		if(invoice == null)
+		if (invoice == null)
 		{
 			invoice = new Invoice();
 			//	set the current date for the new invoice
@@ -629,7 +629,80 @@ public class Library
 		}
 		//	update invoice properties (fields) from the view model
 		invoice.EmployeeID = invoiceView.EmployeeID;
-		
+		invoice.RemoveFromViewFlag = invoiceView.RemoveFromViewFlag;
+		//	reset the subtotal & tax as this will be updated from the invoice lines
+		invoice.SubTotal = 0;
+		invoice.Tax = 0;
+
+		//	process each line item in the the provided view model
+		foreach (InvoiceLineView invoiceLineView in invoiceView.InvoiceLines)
+		{
+			// record/entiry
+			InvoiceLine invoiceLine = _hogWildContext.InvoiceLines
+										.Where(il => il.InvoiceLineID == invoiceLineView.InvoiceLineID)
+										.Select(il => il).FirstOrDefault();
+			//	if the line item does not exist, initialize it
+			if (invoiceLine == null)
+			{
+				invoiceLine = new InvoiceLine();  //  record/entity
+				invoiceLine.PartID = invoiceLineView.PartID;
+			}
+
+			//	update the invoice line properties/field from the view model
+			invoiceLine.Quantity = invoiceLineView.Quantity;
+			invoiceLine.Price = invoiceLineView.Price;
+			invoiceLine.RemoveFromViewFlag = invoiceLineView.RemoveFromViewFlag;
+
+			//	handle new or existing line items
+			if (invoiceLine.InvoiceLineID == 0)
+			{
+				//	add new line item to the invoice entity
+				invoice.InvoiceLines.Add(invoiceLine);
+			}
+			else
+			{
+				//	update the database record with the existing line item
+				_hogWildContext.InvoiceLines.Update(invoiceLine);
+			}
+
+			//	need to update sub total and tax if the invoice line item 
+			//		is not set to be removed from view
+			if (!invoiceLine.RemoveFromViewFlag)
+			{
+				invoice.SubTotal = invoiceLineView.Price * invoiceLineView.Quantity;
+				bool isTaxable = _hogWildContext.Parts
+									.Where(p => p.PartID == invoiceLineView.PartID)
+									.Select(p => p.Taxable).FirstOrDefault();
+				// invoice.Tax = isTaxable ? invoice.Tax  + invoiceLine.Quantity * invoiceLine.Price * 0.05m 
+				//								: invoice.Tax;
+				invoice.Tax += isTaxable ? invoiceLine.Quantity * invoiceLine.Price * 0.05m : 0;
+			}
+		}
+		//	if it is a new invoice, add it to the collection
+		if (invoice.InvoiceID == 0)
+		{
+			//  add the invoice to the invoice table
+			_hogWildContext.Invoices.Add(invoice);
+		}
+		else
+		{
+			//	update the invoice in the invoice table
+			_hogWildContext.Invoices.Update(invoice);
+		}
+
+		try
+		{
+			//	NOTE: YOU CAN ONLY HAVE ONE SAVE CHANGES IN A METHOD
+			_hogWildContext.SaveChanges();
+		}
+		catch (Exception ex)
+		{
+			//	clear change to maintain data integrity
+			_hogWildContext.ChangeTracker.Clear();
+			//	we  do not have to throw an exception, just need to log the erro message
+			return result.AddError(new Error("Error Saving Changes", ex.InnerException.Message));
+		}
+		return GetInvoice(invoice.InvoiceID, invoice.CustomerID, invoice.EmployeeID);
 	}
 
 
