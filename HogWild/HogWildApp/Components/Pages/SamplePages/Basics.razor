@@ -1,0 +1,59 @@
+﻿@page "/SamplePages/Basics"
+<!--Page Title Component-->
+<PageTitle>Review Page Basics</PageTitle>
+
+<!--Main Header-->
+<h1>Introduction to Blazor Page (Review)</h1>
+
+@{
+    // Comments in Razor can be like this in a @{ } to use //
+}
+
+<!--
+
+    Or comments can be used within the arrows
+-->
+
+<div>
+    <h3>Demonstration of using Methods</h3>
+    <!--Conditionally display content base on if the oddEvenValue is even or odd-->
+    @if (IsEven)
+    {
+        <!--Display a message iof the value is even-->
+        <p>@MY_NAME is even {@oddEvenValue}</p>
+    }
+    else
+    {
+        <!--Display a different message-->
+        <p>The random number is odd {@oddEvenValue}</p>
+    }
+    <button @onclick="RandomValue">
+        Random Value
+    </button>
+</div>
+<div style="max-width:50%" class="mt-2">
+    <!--Heading for this section-->
+    <h3>Text Boxes</h3>
+
+    <!-- Using Bootstrap label and input to enter an email-->
+    <div class="mb-3">
+        <label for="emailExample" class="form-label">Enter an Email</label>
+        <input type="email" class="form-control" id="emailExample" @bind="emailText"/> 
+    </div>
+
+
+    <!-- Using Bootstrap label and input to enter an password-->
+    <div class="mb-3">
+        <label for="passwordExample" class="form-label">Enter an Password</label>
+        <input type="password" class="form-control" id="passwordExample" @bind="passwordText" />
+    </div>
+
+
+    <!-- Using Bootstrap label and input to enter an date-->
+    <div class="mb-3">
+        <label for="dateExample" class="form-label">Enter an Date</label>
+        <input type="date" class="form-control" id="dateExample" @bind="dateText" />
+    </div>
+
+
+</div>
