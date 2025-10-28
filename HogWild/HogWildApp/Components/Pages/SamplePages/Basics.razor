@@ -42,7 +42,7 @@ Or comments can be like this within these "arrows"
     <!-- Using Bootstrap label and input to enter an email-->
     <div class="mb-3">
         <label for="emailExample" class="form-label">Enter an Email</label>
-        <input type="email" class="form-control" id="emailExample" @bind="emailText"/> 
+        <input type="email" class="form-control" id="emailExample" @bind="emailText" />
     </div>
 
 
@@ -59,5 +59,9 @@ Or comments can be like this within these "arrows"
         <input type="date" class="form-control" id="dateExample" @bind="dateText" />
     </div>
 
+    <button class="btn btn-info" @onclick="TextSubmit">Text Submit</button>
+</div>
 
+<div class="mt-2">
+    <h2>@feedback</h2>
 </div>
