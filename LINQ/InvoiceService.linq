@@ -685,24 +685,24 @@ public class Library
 									.Select(p => p.Description).FirstOrDefault();
 				result.AddError(new Error("Invalid Quanity", $"Part {partName} has a quantity less than one"));
 			}
+		}
 
-			// rule:    parts cannot be duplicated on more than one line.
-			List<string> duplicatedParts = invoiceView.InvoiceLines
-											.GroupBy(x => new { x.PartID })
-											.Where(gb => gb.Count() > 1)
-											.OrderBy(gb => gb.Key.PartID)
-											.Select(gb => _hogWildContext.Parts
-															.Where(p => p.PartID == gb.Key.PartID)
-															.Select(p => p.Description)
-															.FirstOrDefault()
-											).ToList();
-			if (duplicatedParts.Count > 0)
+		// rule:    parts cannot be duplicated on more than one line.
+		List<string> duplicatedParts = invoiceView.InvoiceLines
+										.GroupBy(x => new { x.PartID })
+										.Where(gb => gb.Count() > 1)
+										.OrderBy(gb => gb.Key.PartID)
+										.Select(gb => _hogWildContext.Parts
+														.Where(p => p.PartID == gb.Key.PartID)
+														.Select(p => p.Description)
+														.FirstOrDefault()
+										).ToList();
+		if (duplicatedParts.Count > 0)
+		{
+			foreach (var partName in duplicatedParts)
 			{
-				foreach (var partName in duplicatedParts)
-				{
-					result.AddError(new Error("Duplicate Invoice Line Items",
-							$"Part {partName} can only be added to the invoice lines once."));
-				}
+				result.AddError(new Error("Duplicate Invoice Line Items",
+						$"Part {partName} can only be added to the invoice lines once."));
 			}
 		}
 
