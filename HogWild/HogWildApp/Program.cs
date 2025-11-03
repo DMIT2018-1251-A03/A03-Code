@@ -1,5 +1,7 @@
 using HogWildApp.Components;
 using MudBlazor.Services;
+using HogWildSystem;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +9,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddMudServices();
+
+
+var connectionStringHogWild = builder.Configuration.GetConnectionString("OLTP-DMIT2018");
+
+builder.Services.AddBackendDependencies(options =>
+    options.UseSqlServer(connectionStringHogWild));
+
+
 
 var app = builder.Build();
 
