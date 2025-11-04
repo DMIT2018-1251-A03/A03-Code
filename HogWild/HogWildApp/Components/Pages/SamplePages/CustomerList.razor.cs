@@ -14,7 +14,7 @@ namespace HogWildApp.Components.Pages.SamplePages
         private string feedbackMesssage = string.Empty;   
         private string errorMessage = string.Empty;
         private bool hasFeedback => !string.IsNullOrWhiteSpace(feedbackMesssage);
-        private bool hasError => !string.IsNullOrWhiteSpace(errorMessage);
+        private bool hasError => !string.IsNullOrWhiteSpace(errorMessage) || errorDetails.Count() > 0;
         //error list
         private List<string> errorDetails = new List<string>();
 
@@ -29,7 +29,7 @@ namespace HogWildApp.Components.Pages.SamplePages
         protected NavigationManager NavigationManager { get; set; } = default!;
 
         //  list of customer search views
-        protected List<CustomerSearchView> CustomerSearchViews { get; set; } = default!;
+        protected List<CustomerSearchView> CustomerSearchViews { get; set; } = new();
         #endregion
 
         #region Methods

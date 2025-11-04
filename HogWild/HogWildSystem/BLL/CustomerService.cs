@@ -62,7 +62,7 @@ namespace HogWildSystem.BLL
             var customers = _hogWildContext.Customers
                                 .Where(c => (string.IsNullOrWhiteSpace(lastName)
                                     || c.LastName.ToUpper().Contains(lastName.ToUpper())) // 1
-                                && (string.IsNullOrWhiteSpace(phone)
+                                || (string.IsNullOrWhiteSpace(phone)
                                 || c.Phone.Contains(phone)) // 2
                                 && !c.RemoveFromViewFlag // 3
                                 )
