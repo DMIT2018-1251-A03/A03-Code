@@ -33,7 +33,7 @@ namespace HogWildApp.Components.Pages.SamplePages
         #endregion
 
         #region Methods
-        public void GetCustomers(string lastName, string phone)
+        public void Search()
         {
             //	clear the previous error details and messages
             errorDetails.Clear();
@@ -43,7 +43,7 @@ namespace HogWildApp.Components.Pages.SamplePages
             //	wrap the service call in a try/catch to handle unexpected exceptions
             try
             {
-                var result = CustomerService.GetCustomers(lastName, phone);
+                var result = CustomerService.GetCustomers(lastName, phoneNumber);
                 if (result.IsSuccess)
                 {
                     CustomerSearchViews = result.Value;
@@ -59,6 +59,24 @@ namespace HogWildApp.Components.Pages.SamplePages
                 //	capture any exception message for display
                 errorMessage = ex.Message;
             }
+        }
+
+        //  new customer
+        private void New()
+        {
+
+        }
+
+        //  edit selected customer
+        private void EditCustomer(int customerID)
+        {
+
+        }
+
+        //  new invoice for selected customer
+        private void NewInvoice(int customerID)
+        {
+
         }
         #endregion
     }
