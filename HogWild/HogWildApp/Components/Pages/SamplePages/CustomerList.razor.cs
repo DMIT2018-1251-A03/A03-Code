@@ -11,9 +11,9 @@ namespace HogWildApp.Components.Pages.SamplePages
         private string phoneNumber = string.Empty;
         //  this will tell us if the search has been performed
         private bool noRecords;
-        private string feedbackMesssage = string.Empty;   
+        private string feedbackMessage = string.Empty;   
         private string errorMessage = string.Empty;
-        private bool hasFeedback => !string.IsNullOrWhiteSpace(feedbackMesssage);
+        private bool hasFeedback => !string.IsNullOrWhiteSpace(feedbackMessage);
         private bool hasError => !string.IsNullOrWhiteSpace(errorMessage) || errorDetails.Count() > 0;
         //error list
         private List<string> errorDetails = new List<string>();
@@ -38,7 +38,7 @@ namespace HogWildApp.Components.Pages.SamplePages
             //	clear the previous error details and messages
             errorDetails.Clear();
             errorMessage = string.Empty;
-            feedbackMesssage = string.Empty;
+            feedbackMessage = string.Empty;
 
             //	wrap the service call in a try/catch to handle unexpected exceptions
             try
