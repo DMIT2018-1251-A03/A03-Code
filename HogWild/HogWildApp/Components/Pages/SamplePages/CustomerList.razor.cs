@@ -1,19 +1,32 @@
 ﻿using HogWildSystem.BLL;
 using HogWildSystem.ViewModels;
 using Microsoft.AspNetCore.Components;
+using HogWildApp.Components;
 
 namespace HogWildApp.Components.Pages.SamplePages
 {
     public partial class CustomerList
     {
         #region Fields
+        //  The last name
         private string lastName = string.Empty;
+
+        //  The phone number
         private string phoneNumber = string.Empty;
-        //  this will tell us if the search has been performed
+
+        //  Tells us if the search has been performed
         private bool noRecords;
-        private string feedbackMessage = string.Empty;   
+
+        //  The feedback message
+        private string feedbackMessage = string.Empty;
+
+        //  The error message
         private string errorMessage = string.Empty;
+
+        //  has feedback
         private bool hasFeedback => !string.IsNullOrWhiteSpace(feedbackMessage);
+
+        //  has error
         private bool hasError => !string.IsNullOrWhiteSpace(errorMessage) || errorDetails.Count() > 0;
         //error list
         private List<string> errorDetails = new List<string>();
@@ -33,12 +46,15 @@ namespace HogWildApp.Components.Pages.SamplePages
         #endregion
 
         #region Methods
-        public void Search()
+        private void Search()
         {
             //	clear the previous error details and messages
             errorDetails.Clear();
             errorMessage = string.Empty;
             feedbackMessage = string.Empty;
+
+            //  clear customer list
+            CustomerSearchViews.Clear();
 
             //	wrap the service call in a try/catch to handle unexpected exceptions
             try
@@ -50,6 +66,10 @@ namespace HogWildApp.Components.Pages.SamplePages
                 }
                 else
                 {
+                    if(result.Errors.Any(e => e.Code == "No Customers"))
+                    {
+                        noRecords=true;
+                    }
                     errorDetails = HogWildHelperClass.GetErrorMessages(result.Errors.ToList());
                 }
 

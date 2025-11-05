@@ -1,7 +1,9 @@
 ﻿using HogWildSystem.BLL;
 using HogWildSystem.ViewModels;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using MudBlazor;
+using System.Globalization;
 using static MudBlazor.Icons;
 
 namespace HogWildApp.Components.Pages.SamplePages

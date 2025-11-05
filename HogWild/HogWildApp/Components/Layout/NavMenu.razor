@@ -1,60 +1,47 @@
-﻿
+﻿@using MudBlazor
+@implements IDisposable
 
-<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">HogWildApp</a>
-    </div>
-</div>
+@inject NavigationManager NavigationManager
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+<MudNavMenu>
+    <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
+    <MudNavLink Href="counter" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Add">Counter</MudNavLink>
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
+    <MudNavLink Href="weather" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List">Weather</MudNavLink>
+    
+    <MudNavGroup Title="Sample Pages">
+        <MudNavLink Href="SamplePages/Basics" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Abc">Basics</MudNavLink>
+        <MudNavLink Href="SamplePages/WorkingVersion" Match="NavLinkMatch.Prefix"
+                    Icon="@Icons.Material.Filled.Album">Working Versions</MudNavLink>
+        <MudNavLink Href="SamplePages/CustomerList" Match="NavLinkMatch.Prefix"
+                    Icon="@Icons.Material.Filled.People">Customers</MudNavLink>
+        <MudNavLink Href="SamplePages/SimpleListToList" Match="NavLinkMatch.Prefix"
+                    Icon="@Icons.Material.Filled.People">Simple List to List</MudNavLink>
+        <MudNavLink Href="SamplePages/SimpleNonIndexList" Match="NavLinkMatch.Prefix"
+                    Icon="@Icons.Material.Filled.People">Simple Non-Index List</MudNavLink>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
+    </MudNavGroup>
+</MudNavMenu>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" @onclick="() => expandSamplePages = !expandSamplePages">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Sample Pages
-            </NavLink>
-
-            <!-- check if the Sample Pages section is expand-->
-            @if (expandSamplePages)
-            {
-                <!-- Nested Navlink within the sample page section-->
-                <NavLink class="nav-link" href="/SamplePages/Basics">
-                    <span>Basic</span>
-                </NavLink>
-
-                <NavLink class="nav-link" href="/SamplePages/WorkingVersion" Match="NavLinkMatch.Prefix">
-                    <span>Working Version</span>
-                </NavLink>
-
-                <NavLink class="nav-link" href="/SamplePages/CustomerList" Match="NavLinkMatch.Prefix">
-                    <span>Customers</span>
-                </NavLink>
-            }
-        </div>
-    </nav>
-</div>
 
 @code {
-    //  Holds the current state of the Smaple Pages section (expanded or collapsed)
-    private bool expandSamplePages = false;
-    private bool collapseNavMenu = true;
+    private string? currentUrl;
+
+    protected override void OnInitialized()
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
 }
+
