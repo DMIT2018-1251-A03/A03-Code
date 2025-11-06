@@ -20,6 +20,13 @@ namespace HogWildApp.Components.Pages.SamplePages
 
         // customer
         private CustomerEditView customer = new();
+        //  provinces
+        private List<LookupView> provinces = new();
+        //  countries
+        private List<LookupView> countries = new();
+        //  status lookup
+        private List<LookupView> statusLookup = new();
+
         // mudform control
         private MudForm customerForm = new();
         #endregion
@@ -28,6 +35,9 @@ namespace HogWildApp.Components.Pages.SamplePages
         //  customer service
         [Inject]
         protected CustomerService CustomerService { get; set; } = default!;
+
+        [Inject]
+        protected CategoryLookupService CategoryLookupService { get; set; } = default!;
 
         //  Customer ID used to create or edit a customer
         [Parameter]
@@ -73,6 +83,40 @@ namespace HogWildApp.Components.Pages.SamplePages
             {
                 customer = new();
             }
+
+            #region Lookups
+            var results = CategoryLookupService.GetLookups("Province");
+            if (results.IsSuccess)
+            {
+                provinces = results.Value;
+            }
+            else
+            {
+                errorDetails = HogWildHelperClass.GetErrorMessages(results.Errors.ToList());
+            }
+
+            results = CategoryLookupService.GetLookups("Country");
+            if (results.IsSuccess)
+            {
+                countries = results.Value;
+            }
+            else
+            {
+                errorDetails = HogWildHelperClass.GetErrorMessages(results.Errors.ToList());
+            }
+
+            results = CategoryLookupService.GetLookups("Customer Status");
+            if (results.IsSuccess)
+            {
+                statusLookup = results.Value;
+            }
+            else
+            {
+                errorDetails = HogWildHelperClass.GetErrorMessages(results.Errors.ToList());
+            }
+
+            #endregion
+
 
             //  update that data has change
             StateHasChanged();
