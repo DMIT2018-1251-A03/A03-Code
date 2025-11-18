@@ -33,7 +33,7 @@ else
     </MudAlert>
 }
 
-<MudForm @ref="customerForm">
+<MudForm @ref="customerForm" @bind-IsValid="isFormValid" @bind-IsTouched="hasDataChanged">
     <MudGrid>
         <!-- Column one-->
         <MudItem xs="6">
@@ -129,14 +129,15 @@ else
         <MudItem xs="12">
             <MudButton Variant="Variant.Filled"
                        Color="Color.Primary"
-                       OnClick="Save">
+                       OnClick="Save"
+                       Disabled="@(!isFormValid || !hasDataChanged)">
                 Save
             </MudButton>
             <MudButton Variant="Variant.Filled"
                        Color="Color.Error"
                        OnClick="Cancel"
                        Class="ml-4">
-                Cancel
+                @closeButtonText
             </MudButton>
         </MudItem>
     </MudGrid>

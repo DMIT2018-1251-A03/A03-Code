@@ -31,6 +31,15 @@ namespace HogWildApp.Components.Pages.SamplePages
         private MudForm customerForm = new();
         #endregion
 
+        #region Validation
+        // flag if the form is valid
+        private bool isFormValid = false;
+        //  flag i=f data has changed
+        private bool hasDataChanged = false;
+        //  set text for cancel/close button
+        private string closeButtonText => hasDataChanged ? "Cancel" : "Close";
+        #endregion
+
         #region Propertiers
         //  customer service
         [Inject]
@@ -39,8 +48,11 @@ namespace HogWildApp.Components.Pages.SamplePages
         [Inject]
         protected CategoryLookupService CategoryLookupService { get; set; } = default!;
 
-        [Inject] 
+        [Inject]
         protected NavigationManager NavigationManager { get; set; } = default!;
+
+        //  inject the DialogService dependency
+        [Inject] protected IDialogService DialogService { get; set; } = default!;
 
         //  Customer ID used to create or edit a customer
         [Parameter]
@@ -140,6 +152,12 @@ namespace HogWildApp.Components.Pages.SamplePages
                 if (result.IsSuccess)
                 {
                     customer = result.Value;
+                    feedbackMessage = "Data was successfully saved!";
+
+                    //  reset change tracking
+                    hasDataChanged = false;
+                    isFormValid = false;
+                    customerForm.ResetTouched();  //  reset the touched
                 }
                 else
                 {
@@ -154,8 +172,22 @@ namespace HogWildApp.Components.Pages.SamplePages
         }
 
         //  Cancel/close 
-        private void Cancel()
+        private async Task Cancel()
         {
+            if (hasDataChanged)
+            {
+                bool? result = await DialogService.ShowMessageBox("Confirm Cancel",
+                    "Do you wish to close the customer editor?  All unsaved changes will be lost.",
+                    yesText: "Yes", cancelText: "No");
+
+                //  true means affirmative action (e.g. "Yes")
+                //  null means the user dismissed the dialog (e.g. clicking "No" or closing the dialog)
+                if (result == null)
+                {
+                    return;
+                }
+            }
+
             NavigationManager.NavigateTo("/SamplePages/CustomerList");
         }
         #endregion
