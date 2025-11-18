@@ -39,6 +39,9 @@ namespace HogWildApp.Components.Pages.SamplePages
         [Inject]
         protected CategoryLookupService CategoryLookupService { get; set; } = default!;
 
+        [Inject] 
+        protected NavigationManager NavigationManager { get; set; } = default!;
+
         //  Customer ID used to create or edit a customer
         [Parameter]
         public int CustomerID { get; set; } = 0;
@@ -120,6 +123,40 @@ namespace HogWildApp.Components.Pages.SamplePages
 
             //  update that data has change
             StateHasChanged();
+        }
+
+        //  save the customer
+        private void Save()
+        {
+            //	clear previous error details and messages
+            errorDetails.Clear();
+            errorMessage = string.Empty;
+            feedbackMessage = string.Empty;
+
+            //	wrap the service call in a try/catch to handle unexpected exception
+            try
+            {
+                var result = CustomerService.AddEditCustomer(customer);
+                if (result.IsSuccess)
+                {
+                    customer = result.Value;
+                }
+                else
+                {
+                    errorDetails = HogWildHelperClass.GetErrorMessages(result.Errors.ToList());
+                }
+            }
+            catch (Exception ex)
+            {
+                //	capture any exception message for display
+                errorMessage = ex.Message;
+            }
+        }
+
+        //  Cancel/close 
+        private void Cancel()
+        {
+            NavigationManager.NavigateTo("/SamplePages/CustomerList");
         }
         #endregion
 
