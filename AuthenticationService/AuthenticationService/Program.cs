@@ -29,9 +29,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<IdentityRole>()  //  added this
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager()
-    .AddDefaultTokenProviders();
+    .AddDefaultTokenProviders()
+    .AddRoleManager<RoleManager<IdentityRole>>();   //  added this
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
